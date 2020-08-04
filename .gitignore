@@ -25,4 +25,4 @@ yarn-error.log*
 #pycharm
 /rpi_parser/.idea
 /rpi_parser/venv
-/rpi_parser/_pycache_
+/rpi_parser/__pycache__

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { setEditPanelScope, setEditPanelVisibility, setFrame } from 'store/actions'
+import { setFrame } from 'store/actions'
 import { ComposerState, Frame } from 'types'
+import { LEFT_PADDING } from 'utils/constants'
 import './style.css'
 
 interface RectStyle {
@@ -15,10 +16,10 @@ type RectProps = {
   x: number
   frame: Frame
   shouldEdit: boolean
+  onDoubleClick: (id: string) => void
 }
 
 function Rect(props: RectProps){
-
   const dispatch = useDispatch()
   const options = useSelector((state: ComposerState) => state.system.editorOptions)
 
@@ -47,23 +48,23 @@ function Rect(props: RectProps){
       let newMargin: number = FrameStartX
 
       if(isLeftHandleActive) { // Drag left handle
-        newMargin = props.x - options.leftPadding // - options.frameSize
+        newMargin = props.x - LEFT_PADDING // - options.frameSize
         newWidth = FrameEndX - newMargin
-        if (props.x <= options.leftPadding){
+        if (props.x <= LEFT_PADDING){
           newMargin = 0 
           newWidth = FrameWidth + FrameStartX
         }
       } else if(isRightHandleActive) { // Drag right handle
-        newWidth = props.x - FrameStartX - options.leftPadding //- options.frameSize
+        newWidth = props.x - FrameStartX - LEFT_PADDING //- options.frameSize
         newMargin = FrameStartX
         if(props.x >= options.width){
           newWidth = (options.width - FrameStartX)
         }
       } else { // drag the Rect around (it just works)
         newWidth = FrameWidth
-        if(props.x - dragOffset <= options.leftPadding) { // Stop at left margin
+        if(props.x - dragOffset <= LEFT_PADDING) { // Stop at left margin
           newMargin = 0 
-        } else if(props.x + (FrameWidth - dragOffset) >= options.width + options.leftPadding) { // Stop at right margin
+        } else if(props.x + (FrameWidth - dragOffset) >= options.width + LEFT_PADDING) { // Stop at right margin
           newMargin = options.width - FrameWidth
         } else {
           newMargin = props.x - dragOffset - options.frameSize
@@ -120,9 +121,9 @@ function Rect(props: RectProps){
     setFrameStartX(props.frame.start * options.frameSize)
     setFrameWidth((props.frame.end - props.frame.start + 1) * options.frameSize)
   }, [props.frame.start, props.frame.end, options.frameSize])
-  const handleEditFrame = () => {
-    dispatch(setEditPanelScope("FRAME", props.frame.channelId, props.frame.id))
-    dispatch(setEditPanelVisibility(true))
+
+  const _handleEditFrame = () => {
+    props.onDoubleClick(props.frame.id)
   }
 
   return (
@@ -130,10 +131,10 @@ function Rect(props: RectProps){
       className="Rect"
       draggable={false}
       style={style}
-      onDoubleClick={handleEditFrame}
+      onDoubleClick={_handleEditFrame}
       onMouseDown={(e) => {
         setIsActive(true)
-        setDragOffset(e.pageX - (FrameStartX + options.leftPadding))
+        setDragOffset(e.pageX - (FrameStartX + LEFT_PADDING))
       }}
     >
       <div 
